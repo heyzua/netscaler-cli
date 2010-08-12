@@ -39,7 +39,18 @@ rescue LoadError
   puts "Jeweler or dependencies are not available.  Install it with: sudo gem install jeweler"
 end
 
+desc "Cleans the gem files up."
 task :clean do
   FileUtils.rm(Dir.glob('*.gemspec'))
   FileUtils.rm(Dir.glob('*.gem'))
+end
+
+desc "Deploys the gem to rubygems.org"
+task :gem => :release do
+  system("gem build netscaler-cli.gemspec")
+  system("gem push netscaler-cli-#{Netscaler::Version.to_s}.gem")
+end
+
+desc "Does the full release cycle."
+task :deploy => [:gem, :clean] do
 end
