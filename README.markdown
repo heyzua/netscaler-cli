@@ -6,7 +6,7 @@ This is a simple command line interface for accessing a Netscaler load balancer.
 
 The command line tools can be installed with:
 
-    gem install netscaler-api
+    gem install netscaler-cli
 
 # Using
 
@@ -19,7 +19,7 @@ The following commands are currently a part of the system:
 
 All of the commands rely upon a configuration file in the YAML format.  By default, it looks for a file in your home directory
 
-    ~/.netscape-cli.yml
+    ~/.netscaler-cli.yml
 
 Each load balancer requires an entry in the file in the form:
 
