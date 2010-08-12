@@ -11,6 +11,7 @@ The command line tools can be installed with:
 # Using
 
 The following commands are currently a part of the system:
+
   * *netscaler-vserver* -- An interface for enabling, disabling, and binding responder policies to a specific virtual server.
   * *netscaler-service* -- An interface for enabling, disabling, and binding virtual servers to specific service.
   
