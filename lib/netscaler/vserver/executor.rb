@@ -1,14 +1,9 @@
-require 'netscaler/logging'
+require 'netscaler/baseexecutor'
 
 module Netscaler::VServer
-  class Executor 
-    include Netscaler::Logging
-
-    attr_reader :host
-    attr_accessor :client
-
-    def initialize(host)
-      @host = host
+  class Executor < Netscaler::BaseExecutor
+    def initialize(host, client)
+      super(host, client)
     end
 
     def enable
@@ -29,9 +24,11 @@ module Netscaler::VServer
     end
 
     def bind(policy_name)
-      attrs = { 'policyname' => policy_name,
+      attrs = { 
+        'policyname' => policy_name,
         'priority' => 1,
-        'gotopriorityexpression' => 'END' }
+        'gotopriorityexpression' => 'END' 
+      }
 
       send_request('bindlbvserver_policy', attrs) do |response|
         require 'pp'
@@ -40,43 +37,15 @@ module Netscaler::VServer
     end
 
     def unbind(policy_name)
-      attrs = { 'policyname' => policy_name }
+      attrs = { 
+        'policyname' => policy_name, 
+        'type' => 'REQUEST'
+      }
 
       send_request('unbindlbvserver_policy', attrs) do |response|
         require 'pp'
         pp response
       end
-    end
-
-    private
-    def send_request(name, body_attrs=nil)
-      log.debug("Calling: #{name}")
-
-      result = client.send("#{name}!") do |soap|
-        soap.namespace = Netscaler::NSCONFIG_NAMESPACE
-
-        body = Hash.new
-        body['name'] = host
-
-        if !body_attrs.nil?
-          body_attrs.each do |k,v|
-            body[k] = v
-          end
-        end
-
-        soap.body = body
-      end
-
-      log.debug(result)
-      
-      response = result.to_hash["#{name.to_s}_response".to_sym]
-      if block_given?
-        yield response
-      else
-        log.info(response[:return][:message])
-      end
-
-      result
     end
   end
 end
