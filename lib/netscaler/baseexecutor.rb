@@ -12,20 +12,19 @@ module Netscaler
     end
 
     protected
-    def send_request(name, body_attrs=nil)
+    def send_request(name, params)
+      if params.nil? || params.empty?
+        raise Netscaler::TransactionError.new("The parameters were empty.")
+      end
+
       log.debug("Calling: #{name}")
 
       result = client.send("#{name}!") do |soap|
         soap.namespace = Netscaler::NSCONFIG_NAMESPACE
-
         body = Hash.new
-
-        if !body_attrs.nil?
-          body_attrs.each do |k,v|
-            body[k] = v
-          end
+        params.each do |k,v|
+          body[k.to_s] = v
         end
-
         soap.body = body
       end
 
