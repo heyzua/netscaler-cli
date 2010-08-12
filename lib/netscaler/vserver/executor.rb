@@ -17,10 +17,11 @@ module Netscaler::VServer
 
     def status
       send_request('getlbvserver', @params) do |response|
-        puts "Name:       #{response[:return][:list][:item][:name]}"
-        puts "IP Address: #{response[:return][:list][:item][:svcipaddress][:item]}"
-        puts "Port:       #{response[:return][:list][:item][:svcport][:item]}"
-        puts "State:      #{response[:return][:list][:item][:svcstate][:item]}"
+        info = response[:return][:list][:item]
+        puts "Name:       #{info[:name]}"
+        puts "IP Address: #{info[:svcipaddress][:item]}"
+        puts "Port:       #{info[:svcport][:item]}"
+        puts "State:      #{info[:svcstate][:item]}"
       end
     end
 

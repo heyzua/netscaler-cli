@@ -21,8 +21,11 @@ module Netscaler::Service
 
     def status
       send_request('getservice', @params) do |response|
-        require 'pp'
-        pp response
+        info = response[:return][:list][:item]
+        puts "Name:       #{info[:name]}"
+        puts "IP Address: #{info[:ipaddress]}"
+        puts "Port:       #{info[:port]}"
+        puts "State:      #{info[:svrstate]}"
       end
     end
 
