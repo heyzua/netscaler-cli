@@ -19,13 +19,15 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.version        = Netscaler::Version.to_s
     gem.name           = 'netscaler-cli'
-    gem.executables    = %W{netscaler-vip netscaler-responder}
-    gem.summary        = 'Simple command line utilities for interacting with a Netscaler load balancer.'
-    gem.description    = 'TODO'
+    gem.version        = Netscaler::Version.to_s
+    gem.executables    = %W{netscaler-vserver netscaler-service}
+    gem.summary        = 'Simple command line utilities for interacting remotely with a Netscaler load balancer.'
+    gem.description    = 'This gem installs several simple command line utilities locally.  It uses the NSConfig.wsdl SOAP interface for remote access.'
     gem.email          = ['madeonamac@gmail.com']
     gem.authors        = ['Gabe McArthur']
+    gem.homepage       = 'http://github.com/gabemc/netscaler-cli'
+    gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*"]
     
     gem.add_dependency    'highline',   '>=1.5.2'
     gem.add_dependency    'log4r',      '>=1.1.7'
