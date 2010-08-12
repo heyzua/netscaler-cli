@@ -7,15 +7,18 @@ module Netscaler::VServer
     end
 
     def enable
-      send_request('enablelbvserver')
+      attrs = { 'name' => host }
+      send_request('enablelbvserver', attrs)
     end
 
     def disable
-      send_request('disablelbvserver')
+      attrs = { 'name' => host }
+      send_request('disablelbvserver', attrs)
     end
 
     def status
-      send_request('getlbvserver') do |response|
+      attrs = { 'name' => host }
+      send_request('getlbvserver', attrs) do |response|
         puts "Name:       #{response[:return][:list][:item][:name]}"
         puts "IP Address: #{response[:return][:list][:item][:svcipaddress][:item]}"
         puts "Port:       #{response[:return][:list][:item][:svcport][:item]}"
@@ -25,6 +28,7 @@ module Netscaler::VServer
 
     def bind(policy_name)
       attrs = { 
+        'name' => host,
         'policyname' => policy_name,
         'priority' => 1,
         'gotopriorityexpression' => 'END' 
@@ -37,7 +41,8 @@ module Netscaler::VServer
     end
 
     def unbind(policy_name)
-      attrs = { 
+      attrs = {
+        'name' => host,
         'policyname' => policy_name, 
         'type' => 'REQUEST'
       }

@@ -16,7 +16,17 @@ module Netscaler
       log.debug("Calling: #{name}")
 
       result = client.send("#{name}!") do |soap|
-        handle_soap_body(soap, body_attrs)
+        soap.namespace = Netscaler::NSCONFIG_NAMESPACE
+
+        body = Hash.new
+
+        if !body_attrs.nil?
+          body_attrs.each do |k,v|
+            body[k] = v
+          end
+        end
+
+        soap.body = body
       end
 
       log.debug(result)
@@ -29,22 +39,6 @@ module Netscaler
       end
 
       result
-    end
-
-    # To be overridden by sub-classes
-    def handle_soap_body(soap, body_attrs)
-      soap.namespace = Netscaler::NSCONFIG_NAMESPACE
-
-      body = Hash.new
-      body['name'] = host
-
-      if !body_attrs.nil?
-        body_attrs.each do |k,v|
-          body[k] = v
-        end
-      end
-
-      soap.body = body
     end
   end
 end
