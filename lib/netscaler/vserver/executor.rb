@@ -34,8 +34,8 @@ module Netscaler::VServer
       }
 
       send_request('bindlbvserver_policy', params) do |response|
-        require 'pp'
-        pp response
+        #require 'pp'
+        #pp response
       end
     end
 
@@ -47,8 +47,8 @@ module Netscaler::VServer
       }
 
       send_request('unbindlbvserver_policy', params) do |response|
-        require 'pp'
-        pp response
+        #require 'pp'
+        #pp response
       end
     end
   end

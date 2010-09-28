@@ -35,8 +35,8 @@ module Netscaler::Service
         :servicename => host
       }
       send_request('bindlbvserver_service', params) do |response|
-        require 'pp'
-        pp response
+        #require 'pp'
+        #pp response
       end
     end
 
@@ -46,8 +46,8 @@ module Netscaler::Service
         :servicename => host
       }
       send_request('unbindlbvserver_service', params) do |response|
-        require 'pp'
-        pp response
+        #require 'pp'
+        #pp response
       end
     end
   end
