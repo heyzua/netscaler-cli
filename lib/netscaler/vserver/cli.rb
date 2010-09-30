@@ -15,7 +15,7 @@ module Netscaler::VServer
       opts.banner = "Usage: #{File.basename($0)} [OPTIONS] VSERVER"
       opts.separator <<DESC
 Description:
-    This is a tool for enabling and disabling virtual server in a Netscaler
+    This is a tool for enabling and disabling a virtual server in a Netscaler
     load balancer.  The name of the virtual server is required, as is the
     address of the Netscaler load balancer.
 
