@@ -21,7 +21,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name           = 'netscaler-cli'
     gem.version        = Netscaler::Version.to_s
-    gem.executables    = %W{netscaler-vserver netscaler-service}
+    gem.executables    = %W{netscaler-vserver netscaler-service netscaler-server}
     gem.summary        = 'Simple command line utilities for interacting remotely with a Netscaler load balancer.'
     gem.description    = 'This gem installs several simple command line utilities locally.  It uses the NSConfig.wsdl SOAP interface for remote access.'
     gem.email          = ['madeonamac@gmail.com']
