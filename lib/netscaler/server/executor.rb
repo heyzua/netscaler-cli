@@ -7,15 +7,15 @@ module Netscaler::Server
       @params = { :name => host }
     end
 
-    def enable
+    def enable(options)
       send_request('enableserver', @params)
     end
 
-    def disable
+    def disable(options)
       send_request('disableserver', @params)
     end
 
-    def status
+    def status(options)
       send_request('getserver', @params) do |response|
         info = response[:return][:list][:item]
         puts "Name:       #{info[:name]}"

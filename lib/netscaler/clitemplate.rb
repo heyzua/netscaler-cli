@@ -15,26 +15,16 @@ module Netscaler
     end
 
     def execute!
-      parse!(@args.dup)
-      Netscaler::Logging.configure(options[:debug])
-      
-      Netscaler::Transaction.new(netscaler_configuration) do |client|
-        action = options[:action].keys[0]
-        args = options[:action][action]
-        executor = create_executor(client)
-
-        if args.nil?
-          executor.send(action)
-        else
-          executor.send(action, args)
-        end
-      end
-    end
-
-    def parse!(args)
       begin
-        parse_options(args)
-        validate_args(args)
+        parse!(@args.dup)
+        Netscaler::Logging.configure(options[:debug])
+        
+        Netscaler::Transaction.new(netscaler_configuration) do |client|
+          action = options[:action][0]
+          executor = create_executor(client)
+          
+          executor.send(action, options)
+        end
       rescue SystemExit => e
         raise
       rescue Netscaler::ConfigurationError => e
@@ -47,10 +37,15 @@ module Netscaler
       end
     end
 
+    def parse!(args)
+      parse_options(args)
+      validate_args(args)
+    end
+
     def parse_options(args)
       @options ||= {}
       if @options.empty?
-        @options[:action] = Hash.new
+        @options[:action] = Array.new
       end
       @parsed_options ||= OptionParser.new do |opts|
         interface_header(opts)
@@ -62,14 +57,16 @@ module Netscaler
 
     def interface_configuration(opts)
       opts.separator "   Configuration: "
-      opts.on('-n', '--netscaler NETSCALER_ADDRESS',
-              "The IP or hostname of the Netscaler load balancer.",
+      opts.on('-n', '--netscaler NETSCALER',
+              "The IP or hostname of the Netscaler",
+              "load balancer.",
               "This argument is required.") do |n|
         options[:netscaler] = n
       end
       opts.on('-c', '--config CONFIG',
-              "The path to the netscaler-cli configuration file.",
-              "By default, it is ~/.netscaler-cli.yml") do |c|
+              "The path to the netscaler-cli configuration",
+              "file.  By default, it is the ",
+              "~/.netscaler-cli.yml") do |c|
         options[:config] = c
       end
       opts.separator ""
@@ -105,8 +102,8 @@ module Netscaler
       @host = args[0]
 
       if options[:action].empty?
-        options[:action][:status] = nil
-      elsif options[:action].keys.length != 1
+        options[:action] << :status
+      elsif options[:action].length != 1
         raise Netscaler::ConfigurationError.new("Multiple actions specified -- only one action is supported at a time.")
       end
 

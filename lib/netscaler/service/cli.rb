@@ -27,19 +27,21 @@ DESC
       opts.separator "   Actions: "
       opts.on('-e', '--enable',
               "Enables the given service.") do |e|
-        options[:action][:enable] = nil
+        options[:action] << :enable
       end
       opts.on('-d', '--disable',
               "Disables the given service.") do |d|
-        options[:action][:disable] = nil
+        options[:action] << :disable
       end
       opts.on('-b', '--bind VSERVER',
               "Binds a service to a virtual server.") do |b|
-        options[:action][:bind] = b
+        options[:action] << :bind
+        options[:vserver] = b
       end
       opts.on('-u', '--unbind VSERVER',
               "Unbinds a serivce to a virtual server.") do |u|
-        options[:action][:unbind] = u
+        options[:action] << :unbind
+        options[:vserver] = u
       end
       opts.separator ""
     end

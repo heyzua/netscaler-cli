@@ -7,11 +7,11 @@ module Netscaler::Service
       @params = { :name => host }
     end
 
-    def enable
+    def enable(options)
       send_request('enableservice', @params)
     end
 
-    def disable
+    def disable(options)
       params = { 
         :name => host, 
         :delay => 0 
@@ -19,7 +19,7 @@ module Netscaler::Service
       send_request('disableservice', params)
     end
 
-    def status
+    def status(options)
       send_request('getservice', @params) do |response|
         info = response[:return][:list][:item]
         puts "Name:       #{info[:name]}"
@@ -29,9 +29,9 @@ module Netscaler::Service
       end
     end
 
-    def bind(vserver)
+    def bind(options)
       params = {
-        :name => vserver,
+        :name => options[:vserver],
         :servicename => host
       }
       send_request('bindlbvserver_service', params) do |response|
@@ -40,9 +40,9 @@ module Netscaler::Service
       end
     end
 
-    def unbind(vserver)
+    def unbind(options)
       params = {
-        :name => vserver,
+        :name => options[:vserver],
         :servicename => host
       }
       send_request('unbindlbvserver_service', params) do |response|

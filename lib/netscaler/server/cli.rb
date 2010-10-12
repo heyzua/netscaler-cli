@@ -30,11 +30,11 @@ DESC
       opts.separator "   Actions: "
       opts.on('-e', '--enable',
               "Enables the given server.") do |e|
-        options[:action][:enable] = nil
+        options[:action] << :enable
       end
       opts.on('-d', '--disable',
               "Disables the given server.") do |d|
-        options[:action][:disable] = nil
+        options[:action] << :disable
       end
       opts.separator ""
     end

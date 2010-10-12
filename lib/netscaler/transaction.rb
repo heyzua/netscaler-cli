@@ -42,6 +42,8 @@ module Netscaler
 
         log.debug("Yielding client control to the calling context")
         yield client
+      rescue SystemExit => e
+        raise
       rescue Exception => e
         log.fatal(e)
         log.fatal("Unable to execute transaction.")

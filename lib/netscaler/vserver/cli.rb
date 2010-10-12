@@ -30,21 +30,46 @@ DESC
       opts.separator "   Actions: "
       opts.on('-e', '--enable',
               "Enables the given virtual server.") do |e|
-        options[:action][:enable] = nil
+        options[:action] << :enable
       end
       opts.on('-d', '--disable',
               "Disables the given virtual server.") do |d|
-        options[:action][:disable] = nil
+        options[:action] << :disable
       end
       opts.on('-b', '--bind POLICY_NAME',
-              "Binds a policy of a given name to a virtual server.") do |b|
-        options[:action][:bind] = b
+              "Binds a policy of a given name to a",
+              "virtual server.") do |b|
+        options[:action] << :bind
+        options[:policy_name] = b
+      end
+      opts.on('-p', '--priority NUMBER', Integer,
+              "The priority to bind the policy with.",
+              "Used only with the --bind flag.") do |p|
+        options[:priority] = p
       end
       opts.on('-u', '--unbind POLICY_NAME',
-              "Unbinds a policy of a given name to a virtual server.") do |u|
-        options[:action][:unbind] = u
+              "Unbinds a policy of a given name to a",
+              "virtual server.") do |u|
+        options[:action] << :unbind
+        options[:policy_name] = u
       end
       opts.separator ""
+    end
+
+    def validate_args(args)
+      super(args)
+
+      if options[:action][0] == :bind
+        if options[:priority].nil?
+          options[:priority] = 1
+        elsif options[:priority] <= 0
+          raise Netscaler::ConfigurationError.new("The --priority must be greater than 0")
+        end
+      else
+        if options[:priority]
+          raise Netscaler::ConfigurationError.new("The --priority flag can only specified with the --bind option")
+        end
+      end
     end
   end # CLI
 end
