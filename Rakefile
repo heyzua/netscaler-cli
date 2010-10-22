@@ -32,7 +32,7 @@ begin
     gem.add_dependency    'log4r',      '>=1.1.7'
     gem.add_dependency    'savon',      '>=0.7.9'
     
-    gem.add_development_dependency 'rspec', '>=1.3.0'
+    gem.add_development_dependency 'rspec', '>=2.0.1'
   end
 rescue LoadError
   puts "Jeweler or dependencies are not available.  Install it with: sudo gem install jeweler"
