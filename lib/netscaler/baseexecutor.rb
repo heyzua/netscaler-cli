@@ -38,6 +38,7 @@ module Netscaler
         msg = response[:return][:message]
         if msg !~ /^Done$/
           log.error(response[:return][:message])
+          exit(1)
         else
           log.debug(msg)
         end
