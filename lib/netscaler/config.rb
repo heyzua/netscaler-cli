@@ -10,17 +10,22 @@ module Netscaler
       @servers = read_config_file(file)
     end
 
-    def [](host)
-      found = @servers[host]
+    def [](name)
+      # First, try the aliases
+      @servers.each_key do |lbname|
+        found = @servers[lbname]
+        if found['alias'] == name
+          return create_config(lbname, found)
+        end
+      end
+
+      # Next, check the actual server names
+      found = @servers[name]
       if found.nil?
         raise Netscaler::ConfigurationError.new("The specified Netscaler host was not found")
       end
 
-      if found['username'].nil?
-        raise Netscaler::ConfigurationError.new("No username was specified for the given Netscaler host")
-      end
-
-      Configuration.new(host, found['username'], found['password'])
+      return create_config(name, found)
     end
 
     def load_balancers
@@ -28,6 +33,14 @@ module Netscaler
     end
 
     private
+    def create_config(lbname, yaml)
+      if yaml['username'].nil?
+        raise Netscaler::ConfigurationError.new("No username was specified for the given Netscaler host")
+      end
+
+      Configuration.new(lbname, yaml['username'], yaml['password'], yaml['alias'])
+    end
+
     def read_config_file(file)
       if file.nil?
         file = File.expand_path(".netscaler-cli.yml", Etc.getpwuid.dir)
@@ -47,12 +60,13 @@ module Netscaler
   end
 
   class Configuration
-    attr_reader :host, :username, :password
+    attr_reader :host, :username, :password, :alias
 
-    def initialize(host, username, password=nil)
+    def initialize(host, username, password=nil, nalias=nil)
       @host = host
       @username = username
       @password = password
+      @alias = nalias
 
       query_password
     end

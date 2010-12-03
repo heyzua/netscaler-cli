@@ -78,6 +78,10 @@ module Netscaler
               "Prints extra debug information") do |d|
         options[:debug] = d
       end
+      opts.on('--json',
+              "Prints out JSON data instead of textual output.") do |j|
+        options[:json] = j
+      end
       opts.on('-v', '--version',
               "Show the version information") do |v|
         puts "#{File.basename($0)} version: #{Netscaler::Version.to_s}"

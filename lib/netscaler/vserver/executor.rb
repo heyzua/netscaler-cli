@@ -21,13 +21,15 @@ module Netscaler::VServer
     def status(options)
       send_request('getlbvserver', @params) do |response|
         begin
-          info = response[:return][:list][:item]
-          puts "Name:       #{info[:name]}"
-          puts "IP Address: #{info[:svcipaddress][:item]}"
-          puts "Port:       #{info[:svcport][:item]}"
-          puts "State:      #{info[:svcstate][:item]}"
+          resp = Response.new(response)
+          if options[:json]
+            puts resp.to_json
+          else
+            puts resp.to_s
+          end
         rescue Exception => e
           log.fatal "Unable to lookup any information for host: #{host}"
+          puts e
           exit(1)
         end
       end
@@ -52,6 +54,106 @@ module Netscaler::VServer
       }
 
       send_request('unbindlbvserver_policy', params)
+    end
+  end
+
+  class Response
+    attr_reader :raw_response, :info
+
+    def initialize(raw_response)
+      @raw_response = raw_response
+      @info = raw_response[:return][:list][:item]
+    end
+
+    def name
+      info[:name]
+    end
+
+    def ip_address
+      if info[:ipaddress] =~ /0\.0\.0\.0/
+        info[:ipaddress2]
+      else
+        info[:ipaddress]
+      end
+    end
+
+    def type
+      info[:servicetype]
+    end
+
+    def port
+      info[:port]
+    end
+
+    def state
+      info[:state]
+    end
+
+    def servers
+      @parsed_servers ||= []
+      if !@parsed_servers.empty?
+        return @parsed_servers
+      end
+
+      info[:servicename][:item].each do |name|
+        srv = ServerInfo.new
+        srv.name = name
+        @parsed_servers << srv
+      end
+
+      info[:svcstate][:item].each_with_index do |state, i|
+        @parsed_servers[i].state = state
+      end
+
+      info[:svcport][:item].each_with_index do |port, i|
+        @parsed_servers[i].port = port
+      end
+
+      info[:svcipaddress][:item].each_with_index do |ip_address, i|
+        @parsed_servers[i].ip_address = ip_address
+      end
+
+      info[:svctype][:item].each_with_index do |type, i|
+        @parsed_servers[i].type = type
+      end
+
+      @parsed_servers
+    end
+
+    def to_s
+      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}\nType:\t#{type}\nServers:\n"
+      servers.each do |server|
+        base << server.to_s
+        base << "\n\n"
+      end
+      base
+    end
+
+    def to_json
+      base = "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': '#{port}', 'type': #{type}, 'servers': [\n    "
+
+      servers.each_with_index do |server, i|
+        base << server.to_json
+        if i != servers.length - 1
+          base << ",\n    "
+        else
+          base << "\n"
+        end
+      end
+
+      base << "] }"
+    end
+  end
+
+  class ServerInfo
+    attr_accessor :name, :ip_address, :state, :port, :type
+
+    def to_s
+ "\tName:\t#{name}\n\tIP:\t#{ip_address}\n\tState:\t#{state}\n\tPort:\t#{port}\n\tType:\t#{type}"
+    end
+
+    def to_json
+      "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}' }"
     end
   end
 end

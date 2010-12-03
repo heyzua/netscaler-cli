@@ -19,25 +19,12 @@ module Netscaler::Service
       send_request('disableservice', params)
     end
 
-    def status(options)
-      send_request('getservice', @params) do |response|
-        info = response[:return][:list][:item]
-        puts "Name:       #{info[:name]}"
-        puts "IP Address: #{info[:ipaddress]}"
-        puts "Port:       #{info[:port]}"
-        puts "State:      #{info[:svrstate]}"
-      end
-    end
-
     def bind(options)
       params = {
         :name => options[:vserver],
         :servicename => host
       }
-      send_request('bindlbvserver_service', params) do |response|
-        #require 'pp'
-        #pp response
-      end
+      send_request('bindlbvserver_service', params)
     end
 
     def unbind(options)
@@ -45,10 +32,51 @@ module Netscaler::Service
         :name => options[:vserver],
         :servicename => host
       }
-      send_request('unbindlbvserver_service', params) do |response|
-        #require 'pp'
-        #pp response
+      send_request('unbindlbvserver_service', params)
+    end
+
+    def status(options)
+      send_request('getservice', @params) do |response|
+        resp = Response.new(response)
+        if options[:json]
+          puts resp.to_json
+        else
+          puts resp.to_s
+        end
       end
+    end
+  end
+
+  class Response
+    attr_reader :raw_response, :info
+
+    def initialize(raw_response)
+      @raw_response = raw_response
+      @info = raw_response[:return][:list][:item]
+    end
+
+    def name
+      info[:name]
+    end
+
+    def ip_address
+      info[:ipaddress]
+    end
+
+    def state
+      info[:svrstate]
+    end
+
+    def port
+      info[:port]
+    end
+    
+    def to_s
+      "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}"
+    end
+
+    def to_json
+      "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port} }"
     end
   end
 end

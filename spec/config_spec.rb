@@ -16,13 +16,19 @@ module Netscaler
 
     describe "when reading an existing file" do
       it "should be able to load the basic config file" do
-        reading('simple-config.yml').load_balancers.length.should eql(1)
+        reading('simple-config.yml').load_balancers.length.should eql(2)
       end
 
       it "should set the username and password correctly when set in the file." do
         config = reading('simple-config.yml')['something.goes.here']
         config.username.should eql('some_user')
         config.password.should eql('somepass')
+      end
+
+      it "should load via an alias" do
+        config = reading('simple-config.yml')['else']
+        config.alias.should eql('else')
+        config.username.should eql('here')
       end
     end
 

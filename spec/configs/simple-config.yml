@@ -1,3 +1,7 @@
 something.goes.here:
   username: some_user
   password: somepass
+something.else:
+  username: here
+  alias: else
+  password: blah

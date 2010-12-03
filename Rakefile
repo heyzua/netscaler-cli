@@ -20,7 +20,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name           = 'netscaler-cli'
     gem.version        = Netscaler::Version.to_s
-    gem.executables    = %W{netscaler}
+    gem.executables    = %W{netscaler-vserver netscaler-service netscaler-server}
     gem.summary        = 'Simple command line utilities for interacting remotely with a Netscaler load balancer.'
     gem.description    = 'This gem installs several simple command line utilities locally.  It uses the NSConfig.wsdl SOAP interface for remote access.'
     gem.email          = ['madeonamac@gmail.com']
@@ -30,9 +30,9 @@ begin
     
     gem.add_dependency    'log4r',      '>=1.1.9'
     gem.add_dependency    'savon',      '>=0.7.9'
-    gem.add_dependency    'commander',  '>=4.0.3'
+    gem.add_dependency    'highline',   '>=1.6'
     
-    gem.add_development_dependency 'rspec', '>=2.0.1'
+    gem.add_development_dependency 'rspec', '>=2.2.0'
   end
 rescue LoadError
   puts "Jeweler or dependencies are not available.  Install it with: sudo gem install jeweler"

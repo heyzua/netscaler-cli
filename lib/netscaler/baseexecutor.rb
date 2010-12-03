@@ -4,7 +4,7 @@ module Netscaler
   class BaseExecutor
     include Netscaler::Logging
 
-    attr_reader :host, :client
+    attr_reader :host, :client, :json
 
     def initialize(host, client)
       @host = host
@@ -32,16 +32,14 @@ module Netscaler
       log.debug(result)
       
       response = result.to_hash["#{name.to_s}_response".to_sym]
-      if block_given?
+      msg = response[:return][:message]
+      if msg !~ /^Done$/
+        log.error(response[:return][:message])
+        exit(1)
+      elsif block_given?
         yield response
-      else 
-        msg = response[:return][:message]
-        if msg !~ /^Done$/
-          log.error(response[:return][:message])
-          exit(1)
-        else
-          log.debug(msg)
-        end
+      else
+        log.debug(msg)
       end
 
       result
