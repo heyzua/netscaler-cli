@@ -18,10 +18,33 @@ module Netscaler::VServer
       send_request('disablelbvserver', @params)
     end
 
+    def list(options)
+      send_request('getlbvserver', {:empty => :ok}) do |response|
+        puts "[" if options[:json]
+        
+        vservers = response[:return][:list][:item]
+        vservers.each_with_index do |vserver, i|
+          resp = Response.new(vserver)
+          if options[:json]
+            if i == vservers.length - 1
+              puts "    #{resp.to_json}"
+            else
+              puts "    #{resp.to_json},"
+            end
+          else
+            puts resp.to_s
+            puts
+          end
+        end
+
+        puts "]"if options[:json]
+      end      
+    end
+
     def status(options)
       send_request('getlbvserver', @params) do |response|
         begin
-          resp = Response.new(response)
+          resp = Response.new(response[:return][:list][:item])
           if options[:json]
             puts resp.to_json
           else
@@ -58,11 +81,10 @@ module Netscaler::VServer
   end
 
   class Response
-    attr_reader :raw_response, :info
+    attr_reader :info
 
     def initialize(raw_response)
-      @raw_response = raw_response
-      @info = raw_response[:return][:list][:item]
+      @info = raw_response
     end
 
     def name
@@ -91,7 +113,7 @@ module Netscaler::VServer
 
     def servers
       @parsed_servers ||= []
-      if !@parsed_servers.empty?
+      if !@parsed_servers.empty? || info[:servicename].nil?
         return @parsed_servers
       end
 
@@ -121,27 +143,40 @@ module Netscaler::VServer
     end
 
     def to_s
-      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}\nType:\t#{type}\nServers:\n"
-      servers.each do |server|
-        base << server.to_s
-        base << "\n\n"
+      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}\nType:\t#{type}"
+
+      if !servers.empty?
+        base << "\nServers:\n"
+        servers.each do |server|
+          base << server.to_s
+          base << "\n\n"
+        end
       end
+
       base
     end
 
     def to_json
-      base = "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': '#{port}', 'type': #{type}, 'servers': [\n    "
+      base = "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}'"
 
-      servers.each_with_index do |server, i|
-        base << server.to_json
-        if i != servers.length - 1
-          base << ",\n    "
-        else
-          base << "\n"
+      if servers.empty?
+        base << " }"
+      else
+        base << ", 'servers': [\n    "
+
+        servers.each_with_index do |server, i|
+          base << server.to_json
+          if i != servers.length - 1
+            base << ",\n    "
+          else
+            base << "\n"
+          end
         end
+
+        base << "] }"
       end
 
-      base << "] }"
+      base
     end
   end
 

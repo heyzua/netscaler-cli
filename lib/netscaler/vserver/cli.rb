@@ -12,7 +12,7 @@ module Netscaler::VServer
     end
 
     def interface_header(opts)
-      opts.banner = "Usage: #{File.basename($0)} [OPTIONS] VSERVER"
+      opts.banner = "Usage: #{File.basename($0)} [OPTIONS] [VSERVER]"
       opts.separator <<DESC
 Description:
     This is a tool for enabling and disabling a virtual server in a Netscaler
@@ -21,6 +21,9 @@ Description:
 
     By default, this script will tell you what its current status of the
     virtual server is.
+
+    If you want to list all of the virtual servers, use the --list flag with no
+    server argument.
 
 Options:
 DESC
@@ -53,7 +56,21 @@ DESC
         options[:action] << :unbind
         options[:policy_name] = u
       end
+      opts.on('-l', '--list',
+              "List all of the virtual servers in the environment.") do |l|
+        options[:action] << :list
+      end
       opts.separator ""
+    end
+
+    def requires_argument?
+      false
+    end
+
+    def validate_noargs
+      if !options[:action].include?(:list)
+        raise Netscaler::ConfigurationError.new("No hosts specified to act on.")
+      end
     end
 
     def validate_args(args)

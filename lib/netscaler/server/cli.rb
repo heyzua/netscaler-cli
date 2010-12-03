@@ -24,7 +24,7 @@ Description:
     server is.
 
     If you want to list all of the services, use the --list flag with no
-    server.
+    server argument.
 
 Options:
 DESC

@@ -19,10 +19,15 @@ module Netscaler::Server
       send_request('getserver', {:empty => :ok}) do |response|
         puts "[" if options[:json]
         
-        response[:return][:list][:item].each do |server|
+        servers = response[:return][:list][:item]
+        servers.each_with_index do |server, i|
           resp = Response.new(server)
           if options[:json]
-            puts "    #{resp.to_json}"
+            if i == servers.length - 1
+              puts "    #{resp.to_json}"
+            else
+              puts "    #{resp.to_json},"
+            end
           else
             puts resp.to_s
             puts
