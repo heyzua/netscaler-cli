@@ -7,6 +7,8 @@ require 'rubygems'
 require 'rspec/core/rake_task'
 require 'netscaler/version'
 
+include FileUtils
+
 task :default => :spec
 
 desc "Run the RSpec tests"
@@ -26,7 +28,7 @@ begin
     gem.email          = ['madeonamac@gmail.com']
     gem.authors        = ['Gabe McArthur']
     gem.homepage       = 'http://github.com/gabemc/netscaler-cli'
-    gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*"]
+    gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*", "etc/Version"]
     
     gem.add_dependency    'log4r',      '>=1.1.9'
     gem.add_dependency    'savon',      '>=0.7.9'
@@ -50,6 +52,9 @@ end
 
 desc "Cleans the gem files up."
 task :clean do
-  FileUtils.rm(Dir.glob('*.gemspec'))
-  FileUtils.rm(Dir.glob('*.gem'))
+  rm(Dir.glob('*.gemspec'))
+  rm(Dir.glob('*.gem'))
+  if File.directory?('pkg')
+    rm_rf('pkg')
+  end
 end
