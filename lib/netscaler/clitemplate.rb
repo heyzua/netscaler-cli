@@ -96,14 +96,25 @@ module Netscaler
       opts.separator ""
     end
 
-    def validate_args(args)
-      if args.length == 0
-        raise Netscaler::ConfigurationError.new("No hosts specified to act on.")
-      elsif args.length != 1
-        raise Netscaler::ConfigurationError.new("Only one #{cli_type} can be acted on at a time.")
-      end
+    def requires_argument?
+      true
+    end
 
-      @host = args[0]
+    def validate_noargs
+    end
+
+    def validate_args(args)
+      if requires_argument?
+        if args.length == 0
+          raise Netscaler::ConfigurationError.new("No hosts specified to act on.")
+        elsif args.length != 1
+          raise Netscaler::ConfigurationError.new("Only one #{cli_type} can be acted on at a time.")
+        end
+
+        @host = args[0]
+      else
+        validate_noargs
+      end
 
       if options[:action].empty?
         options[:action] << :status

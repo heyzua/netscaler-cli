@@ -17,6 +17,8 @@ module Netscaler
         raise Netscaler::TransactionError.new("The parameters were empty.")
       end
 
+      params.delete(:empty)
+
       log.debug("Calling: #{name}")
 
       result = client.send("#{name}!") do |soap|
