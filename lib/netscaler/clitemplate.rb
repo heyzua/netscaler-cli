@@ -104,16 +104,16 @@ module Netscaler
     end
 
     def validate_args(args)
-      if requires_argument?
-        if args.length == 0
+      if args.length == 0
+        if requires_argument?
           raise Netscaler::ConfigurationError.new("No hosts specified to act on.")
-        elsif args.length != 1
-          raise Netscaler::ConfigurationError.new("Only one #{cli_type} can be acted on at a time.")
+        else
+          validate_noargs
         end
-
-        @host = args[0]
+      elsif args.length != 1
+        raise Netscaler::ConfigurationError.new("Only one #{cli_type} can be acted on at a time.")
       else
-        validate_noargs
+        @host = args[0]
       end
 
       if options[:action].empty?
