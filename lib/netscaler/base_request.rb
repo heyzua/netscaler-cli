@@ -1,7 +1,7 @@
 require 'netscaler/logging'
 
 module Netscaler
-  class BaseExecutor
+  class BaseRequest
     include Netscaler::Logging
 
     attr_reader :host, :client, :json
