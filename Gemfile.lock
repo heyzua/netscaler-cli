@@ -1,6 +1,11 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    ZenTest (4.5.0)
+    autotest (4.4.6)
+      ZenTest (>= 4.4.1)
+    autotest-notification (2.3.1)
+      autotest (~> 4.3)
     builder (3.0.0)
     crack (0.1.8)
     diff-lcs (1.1.2)
@@ -22,6 +27,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  autotest
+  autotest-notification
   highline (>= 1.6)
   log4r (~> 1.1)
   rspec

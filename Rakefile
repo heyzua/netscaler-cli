@@ -12,10 +12,7 @@ include FileUtils
 task :default => :spec
 
 desc "Run the RSpec tests"
-RSpec::Core::RakeTask.new do |t|
-  t.rspec_opts = ['-c', '-f', 'p']
-  t.fail_on_error = false
-end
+RSpec::Core::RakeTask.new :spec
 
 begin
   require 'jeweler'
