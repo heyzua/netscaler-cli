@@ -1,7 +1,7 @@
-require 'netscaler/baseexecutor'
+require 'netscaler/base_request'
 
 module Netscaler::Service
-  class Executor < Netscaler::BaseExecutor
+  class Executor < Netscaler::BaseRequest
     def initialize(host, client)
       super(host, client)
       @params = { :name => host }

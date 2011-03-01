@@ -38,7 +38,7 @@ module Netscaler
         raise Netscaler::ConfigurationError.new("No username was specified for the given Netscaler host")
       end
 
-      Configuration.new(lbname, yaml['username'], yaml['password'], yaml['alias'])
+      Configuration.new(lbname, yaml['username'], yaml['password'], yaml['alias'], yaml['version'])
     end
 
     def read_config_file(file)
@@ -60,13 +60,18 @@ module Netscaler
   end
 
   class Configuration
-    attr_reader :host, :username, :password, :alias
+    attr_reader :host, :username, :password, :alias, :version
 
-    def initialize(host, username, password=nil, nalias=nil)
+    def initialize(host, username, password=nil, nalias=nil, version=nil)
       @host = host
       @username = username
       @password = password
       @alias = nalias
+      @version = if version
+                   version.to_s
+                 else
+                   "9.2"
+                 end
 
       query_password
     end

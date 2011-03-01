@@ -4,7 +4,7 @@ module Netscaler
   class BaseRequest
     include Netscaler::Logging
 
-    attr_reader :host, :client, :json
+    attr_reader :host, :client
 
     def initialize(host, client)
       @host = host

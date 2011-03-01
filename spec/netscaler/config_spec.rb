@@ -14,21 +14,35 @@ module Netscaler
   describe "Configuration Reader" do
     include ConfigurationHelper
 
+    before :each do
+      @config = reading('simple-config.yml')
+    end
+
     describe "when reading an existing file" do
       it "should be able to load the basic config file" do
-        reading('simple-config.yml').load_balancers.length.should eql(2)
+        @config.load_balancers.length.should eql(2)
       end
 
       it "should set the username and password correctly when set in the file." do
-        config = reading('simple-config.yml')['something.goes.here']
-        config.username.should eql('some_user')
-        config.password.should eql('somepass')
+        ns = @config['something.goes.here']
+        ns.username.should eql('some_user')
+        ns.password.should eql('somepass')
       end
 
       it "should load via an alias" do
-        config = reading('simple-config.yml')['else']
-        config.alias.should eql('else')
-        config.username.should eql('here')
+        ns = @config['else']
+        ns.alias.should eql('else')
+        ns.username.should eql('here')
+      end
+
+      it "should set the default version to 9.2" do
+        ns = @config['something.goes.here']
+        ns.version.should eql("9.2")
+      end
+
+      it "should read the version if present" do
+        ns = @config['else']
+        ns.version.should eql("9.1")
       end
     end
 

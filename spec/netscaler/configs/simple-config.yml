@@ -5,3 +5,4 @@ something.else:
   username: here
   alias: else
   password: blah
+  version: 9.1

@@ -7,5 +7,3 @@ module Netscaler::VServer
     
   end
 end
-
-    
