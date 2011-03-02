@@ -7,21 +7,29 @@ GEM
     autotest-notification (2.3.1)
       autotest (~> 4.3)
     builder (3.0.0)
+    choosy (0.1.0)
     crack (0.1.8)
     diff-lcs (1.1.2)
-    highline (1.6.1)
-    log4r (1.1.9)
-    rspec (2.2.0)
-      rspec-core (~> 2.2)
-      rspec-expectations (~> 2.2)
-      rspec-mocks (~> 2.2)
-    rspec-core (2.2.1)
-    rspec-expectations (2.2.0)
-      diff-lcs (~> 1.1.2)
-    rspec-mocks (2.2.0)
-    savon (0.7.9)
+    gyoku (0.3.1)
       builder (>= 2.1.2)
-      crack (>= 0.1.4)
+    highline (1.6.1)
+    httpi (0.7.9)
+      rack
+    log4r (1.1.9)
+    rack (1.2.1)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
+    savon (0.8.6)
+      builder (>= 2.1.2)
+      crack (~> 0.1.8)
+      gyoku (>= 0.3.0)
+      httpi (>= 0.7.8)
 
 PLATFORMS
   ruby
@@ -29,6 +37,7 @@ PLATFORMS
 DEPENDENCIES
   autotest
   autotest-notification
+  choosy (~> 0.1)
   highline (>= 1.6)
   log4r (~> 1.1)
   rspec
