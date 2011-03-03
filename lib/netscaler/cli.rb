@@ -25,7 +25,8 @@ module Netscaler
         n.header 'DESCRIPTION'
         n.para "There are several subcommands to do various things with the load balancer. Try 'netscaler help SUBCOMMAND' for more information about the particulars."
         n.para "Note that you can supply a configuration file, which would normally be found under ~/.netscaler-cli.yml. That file describes the relationship between your Netscaler load balancers and the aliases, usernames, and passwords that you supply for them. The file is in the general format:"
-        n.para "  netscaler.host.name.com:alias: is_optional
+        n.para "  netscaler.host.name.com:
+    alias: is_optional
     usernamd: is_required
     password: is_optional_but_querried_if_not_found"
         
