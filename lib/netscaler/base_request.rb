@@ -4,10 +4,9 @@ module Netscaler
   class BaseRequest
     include Netscaler::Logging
 
-    attr_reader :host, :client
+    attr_reader :client
 
-    def initialize(host, client)
-      @host = host
+    def initialize(client)
       @client = client
     end
 
@@ -44,7 +43,7 @@ module Netscaler
         log.debug(msg)
       end
 
-      result
+      nil
     end
   end
 end

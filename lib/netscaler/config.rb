@@ -6,8 +6,8 @@ require 'highline/import'
 module Netscaler
 
   class ConfigurationReader
-    def initialize(file=nil)
-      @servers = read_config_file(file)
+    def initialize(yaml)
+      @servers = yaml
     end
 
     def [](name)
@@ -32,16 +32,7 @@ module Netscaler
       @servers.keys
     end
 
-    private
-    def create_config(lbname, yaml)
-      if yaml['username'].nil?
-        raise Netscaler::ConfigurationError.new("No username was specified for the given Netscaler host")
-      end
-
-      Configuration.new(lbname, yaml['username'], yaml['password'], yaml['alias'], yaml['version'])
-    end
-
-    def read_config_file(file)
+    def self.read_config_file(file)
       if file.nil?
         file = File.expand_path(".netscaler-cli.yml", Etc.getpwuid.dir)
       end
@@ -52,10 +43,19 @@ module Netscaler
 
       begin
         yaml = File.read(file)
-        return YAML::load(yaml)
+        ConfigurationReader.new(YAML::load(yaml))
       rescue Exception => e
         raise Netscaler::ConfigurationError.new("Unable to load the netscaler-cli configuration file")
       end
+    end
+
+    private
+    def create_config(lbname, yaml)
+      if yaml['username'].nil?
+        raise Netscaler::ConfigurationError.new("No username was specified for the given Netscaler host")
+      end
+
+      Configuration.new(lbname, yaml['username'], yaml['password'], yaml['alias'], yaml['version'])
     end
   end
 

@@ -1,15 +1,17 @@
 require 'netscaler/errors'
 require 'netscaler/version'
-require 'netscaler/logging'
-require 'netscaler/transaction'
 require 'netscaler/config'
+require 'netscaler/executor'
+require 'netscaler/server/request'
+require 'netscaler/vserver/request'
+require 'netscaler/service/request'
 require 'choosy'
 
 module Netscaler
   class CLI
 
     def initialize(args)
-      @args = argdup
+      @args = args.dup
     end
 
     def execute!
@@ -18,12 +20,13 @@ module Netscaler
     
     protected
     def command
+      cmds = [servers, vservers, services]
       @command ||= Choosy::SuperCommand.new :netscaler do
         printer :standard, :color => true, :headers => [:bold, :blue], :max_width => 80
 
         summary "This is a command line tool for interacting with Netscaler load balancer"
-        header 'DESCRIPTION'
-        para "There are several subcommands to do various things with the load balancer. Try 'netscaler help SUBCOMMAND' for more information about the particular"
+        header 'Description:'
+        para "There are several subcommands to do various things with the load balancer. Try 'netscaler help SUBCOMMAND' for more information about the particular command you want to use."
         para "Note that you can supply a configuration file, which would normally be found under ~/.netscaler-cli.yml. That file describes the relationship between your Netscaler load balancers and the aliases, usernames, and passwords that you supply for them. The file is in the general format:"
         para "  netscaler.host.name.com:
     alias: is_optional
@@ -31,15 +34,15 @@ module Netscaler
     password: is_optional_but_querried_if_not_found"
         
         # COMMANDS
-        header 'COMMANDS'
-        command servers
-        command vservers
-        command services
-        para
+        header 'Commands:'
+        cmds.each do |cmd|
+          command cmd
+        end
+        para ''
         help
 
         # OPTIONS
-        header 'GLOBAL OPTIONS'
+        header 'Global Options:'
         string :netscaler, "The IP Address, hostname, or alias in the config file of the Netscaler load balancer. This is required." do
           depends_on :config
           required
@@ -58,7 +61,7 @@ module Netscaler
           default File.join(ENV['HOME'], '.netscaler-cli.yml')
         end
         
-        header 'INFORMATIVE'
+        header 'Informative:'
         boolean_ :debug, "Print extra debug information"
         boolean_ :json, "Prints out JSON instead of textual data"
         version Netscaler::Version.to_s
@@ -67,13 +70,14 @@ module Netscaler
 
     def servers
       Choosy::Command.new :server do |s|
+        executor Netscaler::Executor.new(Netscaler::Server::Request)
         summary "Enables, disbles, or lists servers in the load balancer"
-        header 'DESCRIPTION'
+        header 'Description:'
         para "This is a tool for enabling and disabling a server in a Netscaler load balancer.  The name of the server is required, as is the address of the Netscaler load balancer."
         para "By default, this command will tell you what the current status of the server is."
         para "If you want to list all of the services, use the --list flag."
           
-        header 'OPTIONS'
+        header 'Options:'
         enum :action, [:enable, :disable, :list, :status], "Either [enable, disable, list]. 'list' will ignore additional arguments. Default action is 'status'" do
           default :status
         end
@@ -91,13 +95,14 @@ module Netscaler
 
     def vservers
       Choosy::Command.new :vserver do
+        executor Netscaler::Executor.new(Netscaler::VServer::Request)
         summary "Enables, disables, binds or unbinds policies, or lists virtual servers."
-        header 'DESCRIPTION'
+        header 'Description:'
         para "This is a tool for acting upon virtual servers (VIPs) in a Netscaler load balancer. The name of the virtual server is required."
         para "By default, this command will tell you what the current status of the server is."
         para "If you want to list all of the virtual servers, use the --list flag."
 
-        header 'OPTIONS'
+        header 'Options:'
         enum :action, [:enable, :disable, :list, :bind, :unbind, :status], "Either [enable, disable, list, bind, unbind, status]. 'bind' and 'unbind' require the additional '--policy' flag. 'list' will ignore additional arguments. Default action is 'status'." do
           default :status
         end
@@ -114,7 +119,7 @@ module Netscaler
             die "only used with the bind action" unless options[:action] == :bind
           end
         end
-        arguments do |a|
+        arguments do
           count 0..1 #:at_least => 0, :at_most => 1
           metaname 'SERVER'
           validate do |args, options|
@@ -128,11 +133,12 @@ module Netscaler
 
     def services
       Choosy::Command.new :service do
+        executor Netscaler::Executor.new(Netscaler::Service::Request)
         summary "Enables, disables, binds or unbinds from a virtual server, a given service."
-        header 'DESCRIPTION'
+        header 'Description:'
         para "This is a tool for enabling and disabling services in a Netscaler load balancer.  The name of the service is required, as is the address of the Netscaler load balancer."
         
-        header 'OPTIONS'
+        header 'Options:'
         enum :action, [:enable, :disable, :bind, :unbind, :status], "Either [enable, disable, bind, unbind, status] of a service. 'bind' and 'unbind' require the '--vserver' flag. Default is 'status'." do
           default :status
         end
@@ -146,8 +152,8 @@ module Netscaler
           count 0..1 #:at_least => 0, :at_most => 1
           metaname 'SERVICE'
           validate do |args, options|
-            if arglength == 0
-              die "No services given to act on" unless option[:action] == :list
+            if args.length == 0
+              die "No services given to act on" unless options[:action] == :list
             end
           end
         end

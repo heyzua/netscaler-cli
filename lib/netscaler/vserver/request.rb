@@ -1,66 +1,42 @@
 require 'netscaler/logging'
 require 'netscaler/base_request'
+require 'netscaler/vserver/response'
 
 module Netscaler::VServer
   class Request < Netscaler::BaseRequest
     include Netscaler::Logging
 
-    def initialize(host, client)
-      super(host, client)
-      @params = { :name => host }
+    def enable(vserver, options)
+      params = { :name => vserver }
+      send_request('enablelbvserver', params)
     end
 
-    def enable(options)
-      send_request('enablelbvserver', @params)
+    def disable(vserver, options)
+      params = { :name => vserver }
+      send_request('disablelbvserver', params)
     end
 
-    def disable(options)
-      send_request('disablelbvserver', @params)
-    end
-
-    def list(options)
+    def list(vserver, options)
+      vservers = []
       send_request('getlbvserver', {:empty => :ok}) do |response|
-        puts "[" if options[:json]
-        
-        vservers = response[:return][:list][:item]
+        vserver = response[:return][:list][:item]
         vservers.each_with_index do |vserver, i|
-          resp = Response.new(vserver)
-          if options[:json]
-            if i == vservers.length - 1
-              puts "    #{resp.to_json}"
-            else
-              puts "    #{resp.to_json},"
-            end
-          else
-            puts resp.to_s
-            puts
-          end
+          vservers << Response.new(vserver)
         end
-
-        puts "]"if options[:json]
-      end      
+      end
+      vservers
     end
 
-    def status(options)
-      send_request('getlbvserver', @params) do |response|
-        begin
-          resp = Response.new(response[:return][:list][:item])
-          if options[:json]
-            puts resp.to_json
-          else
-            puts resp.to_s
-          end
-        rescue Exception => e
-          log.fatal "Unable to lookup any information for host: #{host}"
-          puts e
-          exit(1)
-        end
+    def status(vserver, options)
+      params = { :name => vserver }
+      send_request('getlbvserver', params) do |response|
+        return Response.new(response)
       end
     end
 
-    def bind(options)
+    def bind(vserver, options)
       params = { 
-        :name => host,
+        :name => vserver,
         :policyname => options[:policy_name],
         :priority => options[:priority],
         :gotopriorityexpression => 'END' 
@@ -69,114 +45,14 @@ module Netscaler::VServer
       send_request('bindlbvserver_policy', params)
     end
 
-    def unbind(options)
+    def unbind(vserver, options)
       params = {
-        :name => host,
+        :name => vserver,
         :policyname => options[:policy_name], 
         :type => 'REQUEST'
       }
 
       send_request('unbindlbvserver_policy', params)
-    end
-  end
-
-  class Response
-    attr_reader :info
-
-    def initialize(raw_response)
-      @info = raw_response
-    end
-
-    def name
-      info[:name]
-    end
-
-    def ip_address
-      if info[:ipaddress] =~ /0\.0\.0\.0/
-        info[:ipaddress2]
-      else
-        info[:ipaddress]
-      end
-    end
-
-    def type
-      info[:servicetype]
-    end
-
-    def port
-      info[:port]
-    end
-
-    def state
-      info[:state]
-    end
-
-    def servers
-      @parsed_servers ||= []
-      if !@parsed_servers.empty? || info[:servicename].nil?
-        return @parsed_servers
-      end
-
-      info[:servicename][:item].each_with_index do |name, i|
-        srv = ServerInfo.new
-        srv.name = name
-        srv.state = info[:svcstate][:item][i]
-        srv.port = info[:svcport][:item][i]
-        srv.ipaddress = info[:svctype][:item][i]
-        
-        @parsed_servers << srv
-      end
-
-      @parsed_servers
-    end
-
-    def to_s
-      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}\nType:\t#{type}"
-
-      if !servers.empty?
-        base << "\nServers:\n"
-        servers.each do |server|
-          base << server.to_s
-          base << "\n\n"
-        end
-      end
-
-      base
-    end
-
-    def to_json
-      base = "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}'"
-
-      if servers.empty?
-        base << " }"
-      else
-        base << ", 'servers': [\n    "
-
-        servers.each_with_index do |server, i|
-          base << server.to_json
-          if i != servers.length - 1
-            base << ",\n    "
-          else
-            base << "\n"
-          end
-        end
-
-        base << "] }"
-      end
-
-      base
-    end
-  end
-
-  class ServerInfo
-    attr_accessor :name, :ip_address, :state, :port, :type
-
-    def to_s
- "\tName:\t#{name}\n\tIP:\t#{ip_address}\n\tState:\t#{state}\n\tPort:\t#{port}\n\tType:\t#{type}"
-    end
-
-    def to_json
-      "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}' }"
     end
   end
 end

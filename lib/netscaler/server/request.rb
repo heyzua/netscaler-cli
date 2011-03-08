@@ -3,19 +3,13 @@ require 'netscaler/server/response'
 
 module Netscaler::Server
   class Request < Netscaler::BaseRequest
-    def initialize(host, client)
-      super(host, client)
-      @params = { :name => host }
+    def enable(server, options)
+      send_request('enableserver', params)
     end
 
-    def enable
-      send_request('enableserver', @params)
-      nil
-    end
-
-    def disable
-      send_request('disableserver', @params)
-      nil
+    def disable(server, options)
+      params = { :name => server }
+      send_request('disableserver', params)
     end
 
     def list
@@ -29,7 +23,7 @@ module Netscaler::Server
     end
 
     def status
-      send_request('getserver', @params) do |response|
+      send_request('getserver', params) do |response|
         return [Response.new(response_part(response))]
       end
     end
