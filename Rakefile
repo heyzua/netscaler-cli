@@ -30,7 +30,7 @@ begin
     gem.add_dependency    'log4r',      '>=1.1.9'
     gem.add_dependency    'savon',      '>=0.7.9'
     gem.add_dependency    'highline',   '>=1.6'
-    gem.add_dependency    'choosy',     '>=0.2.3'
+    gem.add_dependency    'choosy',     '>=0.2.4'
     
     gem.add_development_dependency 'rspec', '>=2.5.0'
   end
