@@ -101,11 +101,11 @@ module Netscaler::VServer
       @type = raw_response[:svctype][:item]
 
       if !index.nil?
-        @name = @name[i]
-        @ip_address = @ip_address[i]
-        @state = @state[i]
-        @port = @port[i]
-        @type = @type[i]
+        @name = @name[index]
+        @ip_address = @ip_address[index]
+        @state = @state[index]
+        @port = @port[index]
+        @type = @type[index]
       end
     end
 
