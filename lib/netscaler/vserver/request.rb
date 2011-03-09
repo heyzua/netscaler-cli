@@ -19,26 +19,25 @@ module Netscaler::VServer
     def list(vserver, options)
       vservers = []
       send_request('getlbvserver', {:empty => :ok}) do |response|
-        vserver = response[:return][:list][:item]
-        vservers.each_with_index do |vserver, i|
+        response[:return][:list][:item].each do |vserver|
           vservers << Response.new(vserver)
         end
       end
-      vservers
+      yield vservers if block_given?
     end
 
     def status(vserver, options)
       params = { :name => vserver }
       send_request('getlbvserver', params) do |response|
-        return Response.new(response)
+        yield Response.new(response) if block_given?
       end
     end
 
     def bind(vserver, options)
       params = { 
         :name => vserver,
-        :policyname => options[:policy_name],
-        :priority => options[:priority],
+        :policyname => options[:policy],
+        :priority => options[:Priority],
         :gotopriorityexpression => 'END' 
       }
 
@@ -48,7 +47,7 @@ module Netscaler::VServer
     def unbind(vserver, options)
       params = {
         :name => vserver,
-        :policyname => options[:policy_name], 
+        :policyname => options[:policy], 
         :type => 'REQUEST'
       }
 

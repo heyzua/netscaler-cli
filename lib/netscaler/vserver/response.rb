@@ -4,7 +4,11 @@ module Netscaler::VServer
     attr_reader :info
 
     def initialize(raw_response)
-      @info = raw_response[:return][:list][:item]
+      @info = if raw_response[:return]
+                raw_response[:return][:list][:item]
+              else
+                raw_response
+              end
     end
 
     def name
@@ -37,53 +41,43 @@ module Netscaler::VServer
         return @parsed_servers
       end
 
-      info[:servicename][:item].each_with_index do |name, i|
-        srv = ServerInfo.new
-        srv.name = name
-        srv.state = info[:svcstate][:item][i]
-        srv.port = info[:svcport][:item][i]
-        srv.ipaddress = info[:svctype][:item][i]
-        
-        @parsed_servers << srv
+      if info[:servicename][:item].is_a?(String)
+        @parsed_servers << ServerInfo.new(info, nil)
+      else
+        info[:servicename][:item].each_with_index do |name, i|
+          @parsed_servers << ServerInfo.new(info, i)
+        end
       end
 
       @parsed_servers
     end
 
     def to_s
-      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}\nType:\t#{type}"
+      base = sprintf "%-30s %15s %18s %10s %10s", name, ip_address, state, port, type
 
       if !servers.empty?
-        base << "\nServers:\n"
+        base << "\n"
         servers.each do |server|
           base << server.to_s
-          base << "\n\n"
         end
       end
 
       base
     end
 
-    def to_json
-      base = "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}'"
+    def to_json(prefix=nil)
+      indent = if prefix
+                 '  ' + prefix
+               else
+                 '  '
+               end
+      base = "{\n#{indent}'name': '#{name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'"
 
-      if servers.empty?
-        base << " }"
-      else
-        base << ", 'servers': [\n    "
-
-        servers.each_with_index do |server, i|
-          base << server.to_json
-          if i != servers.length - 1
-            base << ",\n    "
-          else
-            base << "\n"
-          end
-        end
-
-        base << "] }"
+      if !servers.empty?
+        base << ",\n#{indent}'servers':\n#{servers.to_json(indent)}"
       end
 
+      base << "\n#{prefix}}"
       base
     end
   end
@@ -91,12 +85,33 @@ module Netscaler::VServer
   class ServerInfo
     attr_accessor :name, :ip_address, :state, :port, :type
 
-    def to_s
- "\tName:\t#{name}\n\tIP:\t#{ip_address}\n\tState:\t#{state}\n\tPort:\t#{port}\n\tType:\t#{type}"
+    def initialize(raw_response, index)
+      @name = raw_response[:servicename][:item]
+      @ip_address = raw_response[:svcipaddress][:item]
+      @state = raw_response[:svcstate][:item]
+      @port = raw_response[:svcport][:item]
+      @type = raw_response[:svctype][:item]
+
+      if !index.nil?
+        @name = @name[i]
+        @ip_address = @ip_address[i]
+        @state = @state[i]
+        @port = @port[i]
+        @type = @type[i]
+      end
     end
 
-    def to_json
-      "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port}, 'type': '#{type}' }"
+    def to_s
+      sprintf"|> %-26s  %15s %18s %10s %10s", name, ip_address, state, port, type
+    end
+
+    def to_json(prefix=nil)
+      indent = if prefix
+                 '  ' + prefix
+               else
+                 '  '
+               end
+      "{\n#{indent}'name': '#{'here' + name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'\n#{prefix}}"
     end
   end
 end

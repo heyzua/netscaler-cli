@@ -1,4 +1,4 @@
-require 'helpers'
+require 'spec_helpers'
 require 'netscaler/config'
 require 'netscaler/errors'
 
@@ -7,7 +7,7 @@ module Netscaler
   module ConfigurationHelper
     def reading(file)
       actual_file = File.expand_path("./configs/#{file}", File.dirname(__FILE__))
-      Netscaler::ConfigurationReader.new(actual_file)
+      Netscaler::ConfigurationReader.read_config_file(actual_file)
     end
   end
 

@@ -14,10 +14,25 @@ module Netscaler
       @args = args.dup
     end
 
-    def execute!
-      command.parse!(@args)
+    def parse!(propagate=nil)
+      command.parse!(@args, propagate)
     end
-    
+
+    def execute!
+      begin
+        command.execute!(@args)
+      rescue SystemExit
+        raise
+      rescue Netscaler::ConfigurationError => e
+        print_error(e.message)
+        exit 1
+      rescue Exception => e
+        STDERR.puts e.backtrace
+        print_error(e.message)
+        exit 1
+      end
+    end
+
     protected
     def command
       cmds = [servers, vservers, services]
@@ -85,8 +100,8 @@ module Netscaler
           count 0..1 #:at_least => 0, :at_most => 1
           metaname 'SERVER'
           validate do |args, options|
-            if arglength == 0
-              die "No server given to act upon" unless options[:action] == :list
+            if args.length == 0
+              die "no server given to act upon" unless options[:action] == :list
             end
           end
         end
@@ -108,23 +123,34 @@ module Netscaler
         end
         string :policy, "The name of the policy to bind/unbind." do
           depends_on :action
+          default :unset
           validate do |arg, options|
-            die "only used with bind/unbind" unless [:bind, :unbind].include?(options[:action])
+            if [:bind, :unbind].include?(options[:action])
+              die "required by the 'bind/unbind' actions" if arg == :unset
+            else
+              die "only used with bind/unbind" unless arg == :unset
+            end
           end
         end
         integer :Priority, "The integer priority of the policy to bind with. Default is 100." do
           depends_on :action, :policy
-          default 100
+          default -1
           validate do |arg, options|
-            die "only used with the bind action" unless options[:action] == :bind
+            if options[:action] == :bind
+              if arg == -1
+                options[:Priority] = 100
+              end
+            elsif arg != -1
+              die "only used with the bind action"
+            end
           end
         end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
           metaname 'SERVER'
           validate do |args, options|
-            if arglength == 0
-              die "no virtual server given to act upon" unless option[:action] == :list
+            if args.length == 0
+              die "no virtual server given to act upon" unless options[:action] == :list
             end
           end
         end
@@ -144,8 +170,13 @@ module Netscaler
         end
         string :vserver, "The virtual server to bind/unbind this service to/from." do
           depends_on :action
-          validate do |args, options|
-            die "only used with bind/unbind" unless [:bind, :unbind].include?(options[:action])
+          default :unset
+          validate do |arg, options|
+            if [:bind, :unbind].include?(options[:action])
+              die "requires the -v/--vserver flag" if arg == :unset
+            else
+              die "only used with bind/unbind" unless arg == :unset
+            end
           end
         end
         arguments do
@@ -153,11 +184,18 @@ module Netscaler
           metaname 'SERVICE'
           validate do |args, options|
             if args.length == 0
-              die "No services given to act on" unless options[:action] == :list
+              die "no services given to act on" unless options[:action] == :list
             end
           end
         end
       end
+    end
+
+    private
+    def print_error(e)
+      STDERR.puts "#{File.basename($0)}: #{e}"
+      STDERR.puts "Try '#{File.basename($0)} help' for more information"
+      exit 1
     end
   end
 end
