@@ -41,7 +41,12 @@ module Netscaler::VServer
         :gotopriorityexpression => 'END' 
       }
 
-      send_request('bindlbvserver_policy', params)
+      method = if options[:netscaler].version == "9.2"
+                 'bindlbvserver'
+               else
+                 'bindlbvserver_policy'
+               end
+      send_request(method, params)
     end
 
     def unbind(vserver, options)
@@ -51,7 +56,12 @@ module Netscaler::VServer
         :type => 'REQUEST'
       }
 
-      send_request('unbindlbvserver_policy', params)
+      method = if options[:netscaler].version == "9.2"
+                 'unbindlbvserver'
+               else
+                 'unbindlbvserver_policy'
+               end
+      send_request(method, params)
     end
   end
 end

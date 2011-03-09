@@ -1,5 +1,7 @@
 module Netscaler::Server
   class Response
+    FORMAT = "%-30s %15s %10s"
+
     attr_reader :info
 
     def initialize(raw_response)
@@ -18,6 +20,12 @@ module Netscaler::Server
       info[:state]
     end
 
+    def header
+      line = sprintf FORMAT, 'Name', 'IP Address', 'State'
+      eqls = '=' * line.length
+      line + "\n" + eqls
+    end
+
     def services
       if info[:servicename]
         res = info[:servicename][:item]
@@ -32,11 +40,11 @@ module Netscaler::Server
     end
 
     def to_s
-      base = "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\n"
+      base = sprintf FORMAT, name, ip_address, state
       if !services.empty?
-        base << "Services:\n"
+        base << "\n"
         services.each do |s|
-          base << "\t#{s}\n"
+          base << "| service:  #{s}\n"
         end
       end
       base

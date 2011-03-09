@@ -43,7 +43,7 @@ module Netscaler
         log.debug(msg)
       end
 
-      nil
+      result
     end
   end
 end

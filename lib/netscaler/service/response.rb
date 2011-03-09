@@ -1,5 +1,7 @@
 module Netscaler::Service
   class Response
+    FORMAT = "%-30s %15s %10s %10s"
+
     def initialize(raw_response)
       @info = raw_response[:return][:list][:item]
     end
@@ -19,13 +21,24 @@ module Netscaler::Service
     def port
       @info[:port]
     end
+
+    def header
+      line = sprintf FORMAT, 'Name', 'IP Address', 'State', 'Port'
+      eqls = '=' * line.length
+      line + "\n" + eqls
+    end
     
     def to_s
-      "Name:\t#{name}\nIP:\t#{ip_address}\nState:\t#{state}\nPort:\t#{port}"
+      sprintf FORMAT, name, ip_address, state, port
     end
 
-    def to_json
-      "{ 'name': '#{name}', 'ip_address': '#{ip_address}', 'state': '#{state}', 'port': #{port} }"
+    def to_json(prefix=nil)
+      indent = if prefix
+                 '  ' + prefix
+               else
+                 '  '
+               end
+      "{\n#{indent}'name': '#{name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port}\n#{prefix}}"
     end
   end
 end

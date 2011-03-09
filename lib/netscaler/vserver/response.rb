@@ -1,6 +1,8 @@
 
 module Netscaler::VServer
   class Response
+    FORMAT = "%-47s %15s %15s %10s %10s"
+
     attr_reader :info
 
     def initialize(raw_response)
@@ -35,6 +37,12 @@ module Netscaler::VServer
       info[:state]
     end
 
+    def header
+      line = sprintf FORMAT, 'Name', 'IP Address', 'State', 'Port', 'Type'
+      eqls = '=' * line.length
+      line + "\n" + eqls
+    end
+
     def servers
       @parsed_servers ||= []
       if !@parsed_servers.empty? || info[:servicename].nil?
@@ -53,12 +61,12 @@ module Netscaler::VServer
     end
 
     def to_s
-      base = sprintf "%-30s %15s %18s %10s %10s", name, ip_address, state, port, type
+      base = sprintf FORMAT, name, ip_address, state, port, type
 
       if !servers.empty?
         base << "\n"
         servers.each do |server|
-          base << server.to_s
+          base << "|> server: #{server}\n"
         end
       end
 
@@ -102,7 +110,7 @@ module Netscaler::VServer
     end
 
     def to_s
-      sprintf"|> %-26s  %15s %18s %10s %10s", name, ip_address, state, port, type
+      sprintf "%-26s  %15s %18s %10s %10s", name, ip_address, state, port, type
     end
 
     def to_json(prefix=nil)

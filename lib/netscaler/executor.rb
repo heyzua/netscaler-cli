@@ -18,6 +18,13 @@ module Netscaler
           if options[:json]
             puts response.to_json
           else
+            if response.is_a?(Array)
+              if response.length > 0
+                puts response[0].header
+              end
+            else
+              puts response.header
+            end
             puts response.to_s
           end
         end
