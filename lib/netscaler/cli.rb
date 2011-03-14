@@ -79,7 +79,7 @@ module Netscaler
         header 'Informative:'
         boolean_ :debug, "Print extra debug information"
         boolean_ :json, "Prints out JSON instead of textual data"
-        version Netscaler::Version.to_s
+        version Netscaler::Version.to_s.chomp!
       end
     end#command
 
