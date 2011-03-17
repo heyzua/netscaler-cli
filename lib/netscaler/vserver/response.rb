@@ -119,7 +119,7 @@ module Netscaler::VServer
                else
                  '  '
                end
-      "{\n#{indent}'name': '#{'here' + name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'\n#{prefix}}"
+      "{\n#{indent}'name': '#{name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'\n#{prefix}}"
     end
   end
 end
