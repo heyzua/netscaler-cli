@@ -47,6 +47,19 @@ module Netscaler::VServer
       @parsed_services
     end
 
+    def service_groups
+      @service_groups ||= if @info[:servicegroupname] && @info[:servicegroupname][:item]
+                            groups = @info[:servicegroupname][:item]
+                            if groups.is_a?(Array)
+                              groups
+                            else
+                              [groups]
+                            end
+                          else
+                            []
+                          end
+    end
+
     def to_hash
       hash = { :name => name,
         :ip_address => ip_address,
@@ -57,6 +70,10 @@ module Netscaler::VServer
 
       if !services.empty?
         hash[:services] = services.map {|s| s.to_hash}
+      end
+
+      if !service_groups.empty?
+        hash[:service_groups] = service_groups
       end
       
       hash
