@@ -30,7 +30,10 @@ module Netscaler
         soap.body = body
       end
 
-      log.debug(result)
+      if log.debug?
+        require 'pp'
+        PP::pp(result.to_hash, $stderr, 80)
+      end
       
       response = result.to_hash["#{name.to_s}_response".to_sym]
       msg = response[:return][:message]

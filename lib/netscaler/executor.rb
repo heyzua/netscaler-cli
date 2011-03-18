@@ -1,7 +1,7 @@
 require 'netscaler/errors'
 require 'netscaler/logging'
 require 'netscaler/transaction'
-require 'netscaler/extensions'
+require 'json'
 
 module Netscaler
   class Executor
@@ -16,16 +16,10 @@ module Netscaler
       Netscaler::Transaction.new options[:netscaler] do |client|
         @request_class.new(client).send(options[:action], args[0], options) do |response|
           if options[:json]
-            puts response.to_json
+            puts JSON.pretty_generate(response)
           else
-            if response.is_a?(Array)
-              if response.length > 0
-                puts response[0].header
-              end
-            else
-              puts response.header
-            end
-            puts response.to_s
+            STDERR.puts "Tempoararily disabled stdout. Use --json instead.  Sorry...."
+            # puts Hirb::Helpers::Tree.render(response)
           end
         end
       end

@@ -20,7 +20,7 @@ module Netscaler::VServer
       vservers = []
       send_request('getlbvserver', {:empty => :ok}) do |response|
         response[:return][:list][:item].each do |vserver|
-          vservers << Response.new(vserver)
+          vservers << Response.new(vserver).to_hash
         end
       end
       yield vservers if block_given?
@@ -29,7 +29,7 @@ module Netscaler::VServer
     def status(vserver, options)
       params = { :name => vserver }
       send_request('getlbvserver', params) do |response|
-        yield Response.new(response) if block_given?
+        yield Response.new(response).to_hash if block_given?
       end
     end
 

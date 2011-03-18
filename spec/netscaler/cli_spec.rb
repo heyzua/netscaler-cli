@@ -55,46 +55,6 @@ module Netscaler
       end
     end
 
-    describe "for services" do
-      it "should fail when the service is given to a non-list action" do
-        attempting {
-          parse('-n', 'else', 'service', '-a', 'disable')
-        }.should raise_error(Choosy::ValidationError, /no services given to act/)
-      end
-      
-      it "should fail when --vserver flag is used with a non-bind/unbind action" do
-        attempting {
-          parse('-n', 'else', 'service', '-a', 'disable', '-v', 'blarg', 'a-service')
-        }.should raise_error(Choosy::ValidationError, /only used with bind/)
-      end
-
-      it "should fail when the --vserver flag is not present with the bind/unbind action" do
-        attempting {
-          parse('-n', 'else', 'service', '-a', 'bind', 'a-service')
-        }.should raise_error(Choosy::ValidationError, /requires the -v\/--vserver flag/)
-      end
-
-      it "should succeed in setting the service name as an argument" do
-        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
-        res.subresults[0].args[0].should eql('a-service')
-      end
-
-      it "should succed in setting the vserver name" do
-        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
-        res.subresults[0][:vserver].should eql('blah')
-      end
-
-      it "should succeed in setting the action" do
-        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
-        res.subresults[0][:action].should eql(:bind)
-      end
-
-      it "should set the default action to status" do
-        res = parse('-n', 'else', 'service', 'a-service')
-        res.subresults[0][:action].should eql(:status)
-      end
-    end
-
     describe "for vserver" do
       it "should fail when the vserver is given to a non-list option" do
         attempting {
@@ -136,5 +96,86 @@ module Netscaler
         }.should raise_error(Choosy::ValidationError, /unrecognized value/)
       end
     end
+
+    describe "for services" do
+      it "should fail when the service is given to a non-list action" do
+        attempting {
+          parse('-n', 'else', 'service', '-a', 'disable')
+        }.should raise_error(Choosy::ValidationError, /no services given to act/)
+      end
+      
+      it "should fail when --vserver flag is used with a non-bind/unbind action" do
+        attempting {
+          parse('-n', 'else', 'service', '-a', 'disable', '-v', 'blarg', 'a-service')
+        }.should raise_error(Choosy::ValidationError, /only used with bind/)
+      end
+
+      it "should fail when the --vserver flag is not present with the bind/unbind action" do
+        attempting {
+          parse('-n', 'else', 'service', '-a', 'bind', 'a-service')
+        }.should raise_error(Choosy::ValidationError, /requires the -v\/--vserver flag/)
+      end
+
+      it "should succeed in setting the service name as an argument" do
+        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
+        res.subresults[0].args[0].should eql('a-service')
+      end
+
+      it "should succed in setting the vserver name" do
+        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
+        res.subresults[0][:vserver].should eql('blah')
+      end
+
+      it "should succeed in setting the action" do
+        res = parse('-n', 'else', 'service', '-a', 'bind', '-v', 'blah', 'a-service')
+        res.subresults[0][:action].should eql(:bind)
+      end
+
+      it "should set the default action to status" do
+        res = parse('-n', 'else', 'service', 'a-service')
+        res.subresults[0][:action].should eql(:status)
+      end
+    end
+
+    describe "for servicegroups" do
+      it "should fail when the service is given to a non-list action" do
+        attempting {
+          parse('-n', 'else', 'servicegroup', '-a', 'disable')
+        }.should raise_error(Choosy::ValidationError, /no service group given to act/)
+      end
+      
+      it "should fail when --vserver flag is used with a non-bind/unbind action" do
+        attempting {
+          parse('-n', 'else', 'servicegroup', '-a', 'disable', '-v', 'blarg', 'a-service-group')
+        }.should raise_error(Choosy::ValidationError, /only used with bind/)
+      end
+
+      it "should fail when the --vserver flag is not present with the bind/unbind action" do
+        attempting {
+          parse('-n', 'else', 'servicegroup', '-a', 'bind', 'a-service-group')
+        }.should raise_error(Choosy::ValidationError, /requires the -v\/--vserver flag/)
+      end
+
+      it "should succeed in setting the service name as an argument" do
+        res = parse('-n', 'else', 'servicegroup', '-a', 'bind', '-v', 'blah', 'a-service-group')
+        res.subresults[0].args[0].should eql('a-service-group')
+      end
+
+      it "should succed in setting the vserver name" do
+        res = parse('-n', 'else', 'servicegroup', '-a', 'bind', '-v', 'blah', 'a-service-group')
+        res.subresults[0][:vserver].should eql('blah')
+      end
+
+      it "should succeed in setting the action" do
+        res = parse('-n', 'else', 'servicegroup', '-a', 'bind', '-v', 'blah', 'a-service-group')
+        res.subresults[0][:action].should eql(:bind)
+      end
+
+      it "should set the default action to status" do
+        res = parse('-n', 'else', 'servicegroup', 'a-service-group')
+        res.subresults[0][:action].should eql(:status)
+      end
+    end
+
   end
 end

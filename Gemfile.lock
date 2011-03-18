@@ -7,10 +7,12 @@ GEM
     autotest-notification (2.3.1)
       autotest (~> 4.3)
     builder (3.0.0)
-    choosy (0.2.3)
+    choosy (0.2.5)
     crack (0.1.8)
     diff-lcs (1.1.2)
     highline (1.6.1)
+    hirb (0.4.0)
+    json_pure (1.5.1)
     log4r (1.1.9)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
@@ -32,6 +34,8 @@ DEPENDENCIES
   autotest-notification
   choosy (~> 0.2)
   highline (>= 1.6)
+  hirb (~> 0.4.0)
+  json_pure (~> 1.5.1)
   log4r (~> 1.1)
   rspec
   savon (~> 0.7.0)

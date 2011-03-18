@@ -35,7 +35,7 @@ module Netscaler::Service
     def status(service, options)
       params = { :name => service }
       send_request('getservice', params) do |response|
-        yield Response.new(response) if block_given?
+        yield Response.new(response).to_hash if block_given?
       end
     end
   end

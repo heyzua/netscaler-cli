@@ -5,6 +5,7 @@ require 'netscaler/executor'
 require 'netscaler/server/request'
 require 'netscaler/vserver/request'
 require 'netscaler/service/request'
+require 'netscaler/servicegroup/request'
 require 'choosy'
 
 module Netscaler
@@ -35,7 +36,7 @@ module Netscaler
 
     protected
     def command
-      cmds = [servers, vservers, services]
+      cmds = [vservers, servers, services, servicegroups]
       @command ||= Choosy::SuperCommand.new :netscaler do
         printer :standard, :color => true, :headers => [:bold, :blue], :max_width => 80
 
@@ -47,7 +48,7 @@ module Netscaler
     alias: is_optional
     usernamd: is_required
     password: is_optional_but_querried_if_not_found"
-        
+
         # COMMANDS
         header 'Commands:'
         cmds.each do |cmd|
@@ -98,7 +99,7 @@ module Netscaler
         end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
-          metaname 'SERVER'
+          metaname '[SERVER]'
           validate do |args, options|
             if args.length == 0
               die "no server given to act upon" unless options[:action] == :list
@@ -147,7 +148,7 @@ module Netscaler
         end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
-          metaname 'SERVER'
+          metaname '[SERVER]'
           validate do |args, options|
             if args.length == 0
               die "no virtual server given to act upon" unless options[:action] == :list
@@ -181,10 +182,44 @@ module Netscaler
         end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
-          metaname 'SERVICE'
+          metaname '[SERVICE]'
           validate do |args, options|
             if args.length == 0
               die "no services given to act on" unless options[:action] == :list
+            end
+          end
+        end
+      end
+    end
+
+    def servicegroups
+      Choosy::Command.new :servicegroup do
+        executor Netscaler::Executor.new(Netscaler::ServiceGroup::Request)
+        summary "Enables, disables, binds or unbinds from a virtual server, a given service group."
+        header 'Description:'
+        para "This is a tool for enabling and disabling service groups in a Netscaler load balancer.  The name of the service group is required, as is the address of the Netscaler load balancer."
+        
+        header 'Options:'
+        enum :action, [:enable, :disable, :bind, :unbind, :status], "Either [enable, disable, bind, unbind, status] of a service group. 'bind' and 'unbind' require the '--vserver' flag. Default is 'status'." do
+          default :status
+        end
+        string :vserver, "The virtual server to bind/unbind this service to/from." do
+          depends_on :action
+          default :unset
+          validate do |arg, options|
+            if [:bind, :unbind].include?(options[:action])
+              die "requires the -v/--vserver flag" if arg == :unset
+            else
+              die "only used with bind/unbind" unless arg == :unset
+            end
+          end
+        end
+        arguments do
+          count 0..1 #:at_least => 0, :at_most => 1
+          metaname '[SERVICEGROUP]'
+          validate do |args, options|
+            if args.length == 0
+              die "no service group given to act on" unless options[:action] == :list
             end
           end
         end

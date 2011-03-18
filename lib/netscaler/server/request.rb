@@ -15,7 +15,7 @@ module Netscaler::Server
       responses = []
       send_request('getserver', {:empty => :ok}) do |response|
         response_part(response).each_with_index do |server, i|
-          responses << Response.new(server)
+          responses << Response.new(server).to_hash
         end
       end      
       yield responses if block_given?
@@ -23,7 +23,7 @@ module Netscaler::Server
 
     def status(server, options)
       send_request('getserver', {:name => server }) do |response|
-        yield Response.new(response_part(response)) if block_given?
+        yield Response.new(response_part(response)).to_hash if block_given?
       end
     end
 

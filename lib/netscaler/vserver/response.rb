@@ -1,10 +1,5 @@
-
 module Netscaler::VServer
   class Response
-    FORMAT = "%-47s %15s %15s %10s %10s"
-
-    attr_reader :info
-
     def initialize(raw_response)
       @info = if raw_response[:return]
                 raw_response[:return][:list][:item]
@@ -14,84 +9,62 @@ module Netscaler::VServer
     end
 
     def name
-      info[:name]
+      @info[:name]
     end
 
     def ip_address
-      if info[:ipaddress] =~ /0\.0\.0\.0/
-        info[:ipaddress2]
+      if @info[:ipaddress] =~ /0\.0\.0\.0/
+        @info[:ipaddress2]
       else
-        info[:ipaddress]
+        @info[:ipaddress]
       end
     end
 
     def type
-      info[:servicetype]
+      @info[:servicetype]
     end
 
     def port
-      info[:port]
+      @info[:port].to_i
     end
 
     def state
-      info[:state]
+      @info[:state]
     end
 
-    def header
-      line = sprintf FORMAT, 'Name', 'IP Address', 'State', 'Port', 'Type'
-      eqls = '=' * line.length
-      line + "\n" + eqls
-    end
+    def services
+      @parsed_services ||= []
+      return @parsed_services if !@parsed_services.empty? || @info[:servicename].nil?
 
-    def servers
-      @parsed_servers ||= []
-      if !@parsed_servers.empty? || info[:servicename].nil?
-        return @parsed_servers
-      end
-
-      if info[:servicename][:item].is_a?(String)
-        @parsed_servers << ServerInfo.new(info, nil)
+      if @info[:servicename][:item].is_a?(String)
+        @parsed_services << ServiceInfo.new(info, nil)
       else
-        info[:servicename][:item].each_with_index do |name, i|
-          @parsed_servers << ServerInfo.new(info, i)
+        @info[:servicename][:item].each_with_index do |name, i|
+          @parsed_services << ServiceInfo.new(info, i)
         end
       end
 
-      @parsed_servers
+      @parsed_services
     end
 
-    def to_s
-      base = sprintf FORMAT, name, ip_address, state, port, type
+    def to_hash
+      hash = { :name => name,
+        :ip_address => ip_address,
+        :state => state,
+        :port => port,
+        :type => type,
+      }
 
-      if !servers.empty?
-        base << "\n"
-        servers.each do |server|
-          base << "|> server: #{server}\n"
-        end
+      if !services.empty?
+        hash[:services] = services.map {|s| s.to_hash}
       end
-
-      base
-    end
-
-    def to_json(prefix=nil)
-      indent = if prefix
-                 '  ' + prefix
-               else
-                 '  '
-               end
-      base = "{\n#{indent}'name': '#{name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'"
-
-      if !servers.empty?
-        base << ",\n#{indent}'servers':\n#{servers.to_json(indent)}"
-      end
-
-      base << "\n#{prefix}}"
-      base
+      
+      hash
     end
   end
 
-  class ServerInfo
-    attr_accessor :name, :ip_address, :state, :port, :type
+  class ServiceInfo
+    attr_accessor :name, :ip_address, :state, :type
 
     def initialize(raw_response, index)
       @name = raw_response[:servicename][:item]
@@ -109,17 +82,17 @@ module Netscaler::VServer
       end
     end
 
-    def to_s
-      sprintf "%-26s  %15s %18s %10s %10s", name, ip_address, state, port, type
+    def port
+      @port.to_i
     end
 
-    def to_json(prefix=nil)
-      indent = if prefix
-                 '  ' + prefix
-               else
-                 '  '
-               end
-      "{\n#{indent}'name': '#{name}',\n#{indent}'ip_address': '#{ip_address}',\n#{indent}'state': '#{state}',\n#{indent}'port': #{port},\n#{indent}'type': '#{type}'\n#{prefix}}"
+    def to_hash
+      { :name => name,
+        :ip_address => ip_address,
+        :state => state,
+        :port => port,
+        :type => type
+      }
     end
   end
 end
