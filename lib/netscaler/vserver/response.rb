@@ -37,10 +37,10 @@ module Netscaler::VServer
       return @parsed_services if !@parsed_services.empty? || @info[:servicename].nil?
 
       if @info[:servicename][:item].is_a?(String)
-        @parsed_services << ServiceInfo.new(info, nil)
+        @parsed_services << ServiceInfo.new(@info, nil)
       else
         @info[:servicename][:item].each_with_index do |name, i|
-          @parsed_services << ServiceInfo.new(info, i)
+          @parsed_services << ServiceInfo.new(@info, i)
         end
       end
 
