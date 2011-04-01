@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*"]
     
   gem.add_dependency    'log4r',      '>= 1.1.9'
-  gem.add_dependency    'savon',      '= 0.7.9'
+  gem.add_dependency    'savon',      '0.7.9'
   gem.add_dependency    'highline',   '>= 1.6'
   gem.add_dependency    'choosy',     '>= 0.4.9'
   gem.add_dependency    'json_pure',  '>= 1.5.1'
