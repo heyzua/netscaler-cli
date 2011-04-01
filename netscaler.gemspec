@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.version        = begin
                          require 'choosy/version'
                          Choosy::Version.load_from_lib.to_s
-                       rescue
+                       rescue Exception
                          '0'
                        end
   gem.platform       = Gem::Platform::RUBY
