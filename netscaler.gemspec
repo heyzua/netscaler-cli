@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency    'log4r',      '>= 1.1.9'
   gem.add_dependency    'savon',      '0.7.9'
   gem.add_dependency    'highline',   '>= 1.6'
-  gem.add_dependency    'choosy',     '>= 0.4.9'
+  gem.add_dependency    'choosy',     '>= 0.4.8'
   gem.add_dependency    'json_pure',  '>= 1.5.1'
     
   gem.add_development_dependency 'rspec'
