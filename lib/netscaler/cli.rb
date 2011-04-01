@@ -80,7 +80,7 @@ module Netscaler
         boolean_ :debug, "Print extra debug information"
         boolean_ :json, "Prints out JSON instead of textual data"
         help
-        version Choosy::Version.load(:file => __FILE__, :relpath => '..')
+        version Choosy::Version.load_from_parent
       end
     end#command
 

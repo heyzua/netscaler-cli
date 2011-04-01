@@ -1,27 +1,20 @@
 PATH
   remote: .
   specs:
-    netscaler-cli (0.5.1)
-      choosy (>= 0.4.3)
+    netscaler-cli (0)
+      choosy (>= 0.4.4)
       highline (>= 1.6)
-      json_pure (>= 1.5.1)
       log4r (>= 1.1.9)
       savon (= 0.7.9)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    ZenTest (4.5.0)
-    autotest (4.4.6)
-      ZenTest (>= 4.4.1)
-    autotest-notification (2.3.1)
-      autotest (~> 4.3)
     builder (3.0.0)
-    choosy (0.4.3)
+    choosy (0.4.4)
     crack (0.1.8)
     diff-lcs (1.1.2)
     highline (1.6.1)
-    json_pure (1.5.1)
     log4r (1.1.9)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
@@ -39,8 +32,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ZenTest
-  autotest
-  autotest-notification
   netscaler-cli!
-  rspec
+  rspec (>= 2.5.0)
