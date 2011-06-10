@@ -20,7 +20,7 @@ module Netscaler
 
       log.debug("Calling: #{name}")
 
-      result = client.send("#{name}!") do |soap|
+      result = client.request name do
         soap.namespace = Netscaler::NSCONFIG_NAMESPACE
         soap.input = name
         body = Hash.new

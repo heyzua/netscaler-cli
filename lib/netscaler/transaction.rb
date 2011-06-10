@@ -20,24 +20,23 @@ module Netscaler
       end
       
       log.debug("Beginning the transaction execution: #{@config.host}")
-
-      client = Savon::Client.new(url) #"file://{File.expand_path('./etc/NSConfig.wsdl', File.dirname(__FILE__))}")
-      client.request.http.ssl_client_auth(:verify_mode => OpenSSL::SSL::VERIFY_NONE)
-
       begin
+        client = Savon::Client.new do 
+          wsdl.endpoint = url
+          wsdl.namespace = Netscaler::NSCONFIG_NAMESPACE
+        end
+        client.http.auth.ssl.verify_mode = :none
+
         log.debug("Logging in to the Netscaler host.")
+        body = { :username => @config.username, :password => @config.password }
 
-        response = client.login! do |soap|
-          soap.namespace = Netscaler::NSCONFIG_NAMESPACE
-          
-          body = Hash.new
-          body['username'] = @config.username
-          body['password'] = @config.password
-
+        response = client.request :login do
+          #soap.namespace = Netscaler::NSCONFIG_NAMESPACE
           soap.body = body
         end
-        auth_cookie = response.http['Set-Cookie']
-        client.request.headers['Cookie'] = auth_cookie
+
+        auth_cookie = response.http.headers['Set-Cookie']
+        client.http.headers['Cookie'] = auth_cookie
         log.debug("Got authorization cookie: #{auth_cookie}")
 
         log.debug("Yielding client control to the calling context")
@@ -51,9 +50,7 @@ module Netscaler
       ensure
         begin
           log.debug("Logging out of the Netscaler host.")
-          client.logout! do |soap|
-            soap.namespace = Netscaler::NSCONFIG_NAMESPACE
-          end
+          client.request :logout
         rescue Exception => e
           log.fatal(e)
           log.fatal("Unable to logout.")

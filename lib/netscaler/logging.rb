@@ -18,7 +18,13 @@ module Netscaler
         
         @@log.level = debug ? Log4r::DEBUG : Log4r::INFO
 
-        Savon::Request.logger = @@log
+        Savon.configure do |config|
+          config.log = debug ? true : false
+          config.log_level = :debug
+          config.logger = @@log
+          config.raise_errors = false
+        end
+
       end
     end
     
@@ -29,6 +35,14 @@ module Netscaler
     # Meant for mixing into other classes for simplified logging
     def log
       @@log ||= Log4r::Logger.root
+    end
+  end
+end
+
+# SHUT THE HELL UP!
+module HTTPI
+  class << self
+    def log(*messages)
     end
   end
 end
