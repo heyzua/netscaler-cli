@@ -100,8 +100,8 @@ module Netscaler::Server
       @state = raw_response[:boundservicegroupsvrstate][:item]
 
       if !index.nil?
-        @servicegroup = @servicegroup[index]
-        @servicegroup_state = @servicegroup_state[index]
+        @name = @name[index]
+        @state = @state[index]
       end
     end
 

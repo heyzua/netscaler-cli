@@ -24,7 +24,6 @@ module Netscaler
           config.logger = @@log
           config.raise_errors = false
         end
-
       end
     end
     
