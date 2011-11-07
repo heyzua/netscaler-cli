@@ -5,14 +5,17 @@ module Netscaler::ServiceGroup
   class Request < Netscaler::BaseRequest
     def enable(service, options)
       params = { :servicegroupname => service }
+      [:servername, :port].each do |option|
+        params[option] = options[option] if options[option]
+      end
       send_request('enableservicegroup', params)
     end
 
     def disable(servicegroup, options)
-      params = { 
-        :servicegroupname => servicegroup, 
-        :delay => 0 
-      }
+      params = { :servicegroupname => servicegroup }
+      [:servername, :port, :delay].each do |option|
+        params[option] = options[option] if options[option]
+      end
       send_request('disableservicegroup', params)
     end
 

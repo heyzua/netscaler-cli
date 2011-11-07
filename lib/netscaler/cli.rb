@@ -214,6 +214,16 @@ module Netscaler
             end
           end
         end
+        string :servername, "The name of the server to scope this command to" do
+          depends_on :action
+        end
+        string :port, "The service port to scope this command to" do
+          depends_on :action
+        end
+        string :delay, "The delay (in seconds) to wait before service transitions to Out of Service" do
+          depends_on :action
+          default "0"
+        end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
           metaname '[SERVICEGROUP]'
