@@ -10,7 +10,7 @@ module Netscaler::ServiceGroup
 
     def disable(servicegroup, options)
       params = { 
-        :servicegroupname => servicename, 
+        :servicegroupname => servicegroup, 
         :delay => 0 
       }
       send_request('disableservicegroup', params)
