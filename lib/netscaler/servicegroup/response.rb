@@ -60,7 +60,6 @@ module Netscaler::ServiceGroup
         @ip_address = @ip_address[index]
         @state = @state[index]
         @port = @port[index]
-        @type = @type[index]
       end
     end
 

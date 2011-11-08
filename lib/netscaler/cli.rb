@@ -214,6 +214,17 @@ module Netscaler
             end
           end
         end
+        string :servername, "The name of the server that an individual service runs on (used when scoping the action to an individual service in a service group)." do
+          depends_on :action
+        end
+        string :port, "The port number that an individual service in bound to (used when scoping the action to an individual service in a service group)." do
+          depends_on :action
+          end
+        end
+        string :delay, "The delay (in seconds) to wait before disabled services transition to Out of Service. Default is 0 seconds (immediately)." do
+          depends_on :action
+          default "0"
+        end
         arguments do
           count 0..1 #:at_least => 0, :at_most => 1
           metaname '[SERVICEGROUP]'

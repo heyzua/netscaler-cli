@@ -161,7 +161,7 @@ module Netscaler
         res.subresults[0].args[0].should eql('a-service-group')
       end
 
-      it "should succed in setting the vserver name" do
+      it "should succeed in setting the vserver name" do
         res = parse('-n', 'else', 'servicegroup', '-a', 'bind', '-v', 'blah', 'a-service-group')
         res.subresults[0][:vserver].should eql('blah')
       end
@@ -174,6 +174,29 @@ module Netscaler
       it "should set the default action to status" do
         res = parse('-n', 'else', 'servicegroup', 'a-service-group')
         res.subresults[0][:action].should eql(:status)
+      end
+
+      describe "scoping to an individual service" do
+        before :each do 
+          @res = parse('-n', 'else', 'servicegroup', '-a', 'enable', 'a-service-group', '-s', 'a-server-name', '-p', '8080', '-d', '180')
+        end
+        
+        it "should set the servername to a-server-name" do
+          @res.subresults[0][:servername].should eql('a-server-name')
+        end
+        
+        it "should set the port to 8080" do
+          @res.subresults[0][:port].should eql('8080')
+        end
+        
+        it "should set the delay to 180" do
+          @res.subresults[0][:delay].should eql('180')
+        end
+        
+        it "should set the delay to 0 if not specified" do
+          @res = parse('-n', 'else', 'servicegroup', '-a', 'enable', 'a-service-group', '-s', 'a-server-name', '-p', '8080')
+          @res.subresults[0][:delay].should eql('0')
+        end
       end
     end
 
